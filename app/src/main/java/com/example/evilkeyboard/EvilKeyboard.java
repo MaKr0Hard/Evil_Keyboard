@@ -1,145 +1,64 @@
 package com.example.evilkeyboard;
 
-import org.apache.commons.text.StringEscapeUtils;
-
 import android.inputmethodservice.InputMethodService;
-import android.inputmethodservice.Keyboard;
-import android.inputmethodservice.KeyboardView;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputConnection;
 import android.view.KeyEvent;
 
-public class EvilKeyboard extends InputMethodService
-        implements KeyboardView.OnKeyboardActionListener {
+public class EvilKeyboard extends InputMethodService {
 
-    private KeyboardView keyboardView;
-    private Keyboard keyboard;
-    String character = "\\u";
-    String output = "";
+    private String character = "\\u";
 
     @Override
     public View onCreateInputView() {
-        // Charge la vue du clavier
-        Log.d("KEYBOARD", "onCreateInputView appelé 1 !");
+        View view = getLayoutInflater().inflate(R.layout.keyboard_view, null);
 
-        keyboardView = (KeyboardView) getLayoutInflater().inflate(R.layout.keyboard_view, null);
-        Log.d("KEYBOARD", "onCreateInputView appelé 2 !");
-        // Charge le clavier défini dans res/xml/qwerty_keyboard.xml
-        keyboard = new Keyboard(this, R.xml.qwerty_keyboard);
-        Log.d("KEYBOARD", "onCreateInputView appelé 3 !");
-        keyboardView.setKeyboard(keyboard);
-        Log.d("KEYBOARD", "onCreateInputView appelé 4 !");
-        keyboardView.setOnKeyboardActionListener(this);
-        Log.d("KEYBOARD", "onCreateInputView appelé 5 !");
-        return keyboardView;
+        // Chiffres
+        setKey(view, R.id.key_1, "1");
+        setKey(view, R.id.key_2, "2");
+        setKey(view, R.id.key_3, "3");
+        setKey(view, R.id.key_4, "4");
+        setKey(view, R.id.key_5, "5");
+        setKey(view, R.id.key_6, "6");
+        setKey(view, R.id.key_7, "7");
+        setKey(view, R.id.key_8, "8");
+        setKey(view, R.id.key_9, "9");
+        setKey(view, R.id.key_0, "0");
 
+        // Lettres
+        setKey(view, R.id.key_A, "A");
+        setKey(view, R.id.key_B, "B");
+        setKey(view, R.id.key_C, "C");
+        setKey(view, R.id.key_D, "D");
+        setKey(view, R.id.key_E, "E");
+        setKey(view, R.id.key_F, "F");
+
+        // Validation
+        view.findViewById(R.id.key_validate).setOnClickListener(v -> validate());
+
+        // ENTER
+        view.findViewById(R.id.key_enter).setOnClickListener(v -> sendEnter());
+
+        return view;
     }
 
-    // Détecte l'appui immédiat (avant le relâchement)
-    @Override
-    public void onPress(int primaryCode) {
-       if (primaryCode == 49) { // 97 = 'a'
-
-                character = character + "1";
-
-        }
-        if (primaryCode == 50) {
-            character = character + "2";
-        }
-        if (primaryCode == 51) {
-            character = character + "3";
-        }
-        if (primaryCode == 52) {
-            character = character + "4";
-        }
-        if (primaryCode == 53) {
-            character = character + "5";
-        }
-        if (primaryCode == 54) {
-            character = character + "6";
-        }
-        if (primaryCode == 55) {
-            character = character + "7";
-        }
-        if (primaryCode == 56) {
-            character = character + "8";
-        }
-        if (primaryCode == 57) {
-            character = character + "9";
-        }
-        if (primaryCode == 48) {
-            character = character + "0";
-        }
-        if (primaryCode == 65) {
-            character = character + "A";
-        }
-        if (primaryCode == 66) {
-            character = character + "B";
-        }
-        if (primaryCode == 67) {
-            character = character + "C";
-        }
-        if (primaryCode == 68) {
-            character = character + "D";
-        }
-        if (primaryCode == 69) {
-            character = character + "E";
-        }
-        if (primaryCode == 70) {
-            character = character + "F";
-        }
-        if (primaryCode == 100) {
-            InputConnection ic = getCurrentInputConnection();
-            if ((character.length() > 3) && (character.length() < 7)) {
-                output = StringEscapeUtils.unescapeJava(character);
-
-                if (ic != null) {
-                    ic.commitText(output, 1);
-                }
-            }
-            character = "\\u";
-            output = "";
-        }
-        if (primaryCode == -4) {
-            InputConnection ic = getCurrentInputConnection();
-            if (ic != null) {
-                ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
-            }
-        }
-        if (primaryCode == -5) {
-            InputConnection ic = getCurrentInputConnection();
-            if (ic != null) {
-                ic.deleteSurroundingText(1, 0);
-
-            }
-        }
-        if (primaryCode == 32) {
-            InputConnection ic = getCurrentInputConnection();
-            if (ic != null) {
-                character = "\\u";
-                output = "";
-            }
-        }
+    private void setKey(View parent, int id, String value) {
+        parent.findViewById(id).setOnClickListener(v -> character += value);
     }
 
-    // Détecte le relâchement de la touche
-    @Override
-    public void onKey(int primaryCode, int[] keyCodes) {
-       if (primaryCode != 0) {
-           Log.d("KEYBOARD", "Touche pressée");
-       }
-
-
-
-
-
+    private void validate() {
+        if (character.length() > 3 && character.length() < 7) {
+            String output = org.apache.commons.text.StringEscapeUtils.unescapeJava(character);
+            InputConnection ic = getCurrentInputConnection();
+            if (ic != null) ic.commitText(output, 1);
+        }
+        character = "\\u";
     }
 
-    @Override public void onRelease(int primaryCode) { }
-    @Override public void onText(CharSequence text) { }
-    @Override public void swipeLeft() { }
-    @Override public void swipeRight() { }
-    @Override public void swipeDown() { }
-    @Override public void swipeUp() { }
+    private void sendEnter() {
+        InputConnection ic = getCurrentInputConnection();
+        if (ic != null) {
+            ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
+        }
+    }
 }
