@@ -13,6 +13,17 @@ public class EvilKeyboard extends InputMethodService {
     public View onCreateInputView() {
         View view = getLayoutInflater().inflate(R.layout.keyboard_view, null);
 
+        view.setOnApplyWindowInsetsListener((v, insets) -> {
+            int bottomInset = insets.getInsets(android.view.WindowInsets.Type.systemBars()).bottom;
+            v.setPadding(
+                    v.getPaddingLeft(),
+                    v.getPaddingTop(),
+                    v.getPaddingRight(),
+                    bottomInset
+            );
+            return insets;
+        });
+
         // Chiffres
         setKey(view, R.id.key_1, "1");
         setKey(view, R.id.key_2, "2");
@@ -47,6 +58,7 @@ public class EvilKeyboard extends InputMethodService {
         return view;
     }
 
+
     private void setKey(View parent, int id, String value) {
         parent.findViewById(id).setOnClickListener(v -> character += value);
     }
@@ -74,7 +86,7 @@ public class EvilKeyboard extends InputMethodService {
     private void sendBackspace() {
         InputConnection ic = getCurrentInputConnection();
         if (ic != null) {
-            ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
+            ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
         }
     }
 }
