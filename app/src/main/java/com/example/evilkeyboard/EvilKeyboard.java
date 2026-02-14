@@ -39,6 +39,11 @@ public class EvilKeyboard extends InputMethodService {
         // ENTER
         view.findViewById(R.id.key_enter).setOnClickListener(v -> sendEnter());
 
+        // This is not ai
+        view.findViewById(R.id.humans_make_mistakes).setOnClickListener(v -> eraseCharacter());
+
+        view.findViewById(R.id.bk).setOnClickListener(v -> sendBackspace());
+
         return view;
     }
 
@@ -55,10 +60,21 @@ public class EvilKeyboard extends InputMethodService {
         character = "\\u";
     }
 
+    private void eraseCharacter() {
+        character = "\\u";
+    }
+
     private void sendEnter() {
         InputConnection ic = getCurrentInputConnection();
         if (ic != null) {
             ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
+        }
+    }
+
+    private void sendBackspace() {
+        InputConnection ic = getCurrentInputConnection();
+        if (ic != null) {
+            ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
         }
     }
 }
