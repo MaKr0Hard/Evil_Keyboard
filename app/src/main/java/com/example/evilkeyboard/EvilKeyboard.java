@@ -14,7 +14,8 @@ public class EvilKeyboard extends InputMethodService {
         View view = getLayoutInflater().inflate(R.layout.keyboard_view, null);
 
         view.setOnApplyWindowInsetsListener((v, insets) -> {
-            int bottomInset = insets.getInsets(android.view.WindowInsets.Type.systemBars()).bottom;
+            int bottomInset = insets.getInsets(android.view.WindowInsets.Type.systemBars()
+            | android.view.WindowInsets.Type.ime()).bottom;
             v.setPadding(
                     v.getPaddingLeft(),
                     v.getPaddingTop(),
